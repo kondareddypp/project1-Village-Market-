@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Village Market</title>
+    <title>Village Market - Local Marketplace</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
             padding: 20px;
-            text-align: center;
             background-color: #f8f8f8;
+            text-align: center;
         }
-        h2 {
-            color: #333;
+        .search-bar, .category-filter {
+            margin-bottom: 15px;
+            padding: 8px;
+            width: 80%;
+            border-radius: 5px;
         }
         .product-list {
             display: flex;
@@ -33,32 +36,104 @@
             height: auto;
             border-radius: 5px;
         }
+        .cart {
+            background: #fff;
+            padding: 10px;
+            border: 1px solid #ddd;
+            width: 250px;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            border-radius: 5px;
+        }
+        .cart h3 { color: #333; }
+        .cart-items { list-style-type: none; padding: 0; }
+        .cart-items li { padding: 5px; border-bottom: 1px solid #ddd; }
     </style>
 </head>
 <body>
 
-    <h2>Welcome to Village Market</h2>
+    <h2>Village Market - Local Marketplace</h2>
+    
+    <!-- Search and Category Filter -->
+    <input type="text" id="searchBar" class="search-bar" placeholder="Search for products..." onkeyup="searchProducts()">
+    <select id="categoryFilter" class="category-filter" onchange="filterProducts()">
+        <option value="all">All Categories</option>
+        <option value="handmade">Handmade</option>
+        <option value="organic">Organic</option>
+        <option value="electronics">Electronics</option>
+    </select>
+
+    <!-- Product Listings -->
     <div id="productList" class="product-list"></div>
 
-    <script>
-        // Fetch products from backend API
-        fetch("https://api.village-market.com/products")
-            .then(response => response.json())
-            .then(products => {
-                const productList = document.getElementById("productList");
+    <!-- Shopping Cart -->
+    <div class="cart">
+        <h3>Shopping Cart</h3>
+        <ul id="cartItems" class="cart-items"></ul>
+        <p><strong>Total: $<span id="cartTotal">0.00</span></strong></p>
+    </div>
 
-                products.forEach(product => {
-                    const productDiv = document.createElement("div");
-                    productDiv.classList.add("product");
-                    productDiv.innerHTML = `
-                        <img src="${product.image || 'placeholder.jpg'}" alt="${product.name}">
-                        <h3>${product.name}</h3>
-                        <p>Price: $${product.price}</p>
-                    `;
-                    productList.appendChild(productDiv);
-                });
-            })
-            .catch(error => console.error("Error fetching products:", error));
+    <script>
+        let products = [
+            { id: 1, name: "Handmade Basket", price: 12.99, category: "handmade", image: "basket.jpg" },
+            { id: 2, name: "Organic Honey", price: 15.99, category: "organic", image: "honey.jpg" },
+            { id: 3, name: "Laptop", price: 599.99, category: "electronics", image: "laptop.jpg" }
+        ];
+        let cart = [];
+
+        function displayProducts(filteredProducts) {
+            const productList = document.getElementById("productList");
+            productList.innerHTML = "";
+
+            filteredProducts.forEach(product => {
+                const productDiv = document.createElement("div");
+                productDiv.classList.add("product");
+                productDiv.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}">
+                    <h3>${product.name}</h3>
+                    <p>Price: $${product.price.toFixed(2)}</p>
+                    <button onclick="addToCart(${product.id})">Add to Cart</button>
+                `;
+                productList.appendChild(productDiv);
+            });
+        }
+
+        function searchProducts() {
+            const query = document.getElementById("searchBar").value.toLowerCase();
+            const filteredProducts = products.filter(product => product.name.toLowerCase().includes(query));
+            displayProducts(filteredProducts);
+        }
+
+        function filterProducts() {
+            const category = document.getElementById("categoryFilter").value;
+            const filteredProducts = category === "all" ? products : products.filter(product => product.category === category);
+            displayProducts(filteredProducts);
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            cart.push(product);
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartItems = document.getElementById("cartItems");
+            cartItems.innerHTML = "";
+
+            let total = 0;
+            cart.forEach(item => {
+                total += item.price;
+                const cartItem = document.createElement("li");
+                cartItem.innerText = `${item.name} - $${item.price.toFixed(2)}`;
+                cartItems.appendChild(cartItem);
+            });
+
+            document.getElementById("cartTotal").innerText = total.toFixed(2);
+        }
+
+        // Initial display
+        displayProducts(products);
     </script>
 
 </body>
