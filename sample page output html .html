@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Village Market</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            text-align: center;
+            background-color: #f8f8f8;
+        }
+        h2 {
+            color: #333;
+        }
+        .product-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .product {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px;
+            width: 200px;
+            border-radius: 5px;
+        }
+        .product img {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Welcome to Village Market</h2>
+    <div id="productList" class="product-list"></div>
+
+    <script>
+        // Fetch products from backend API
+        fetch("https://api.village-market.com/products")
+            .then(response => response.json())
+            .then(products => {
+                const productList = document.getElementById("productList");
+
+                products.forEach(product => {
+                    const productDiv = document.createElement("div");
+                    productDiv.classList.add("product");
+                    productDiv.innerHTML = `
+                        <img src="${product.image || 'placeholder.jpg'}" alt="${product.name}">
+                        <h3>${product.name}</h3>
+                        <p>Price: $${product.price}</p>
+                    `;
+                    productList.appendChild(productDiv);
+                });
+            })
+            .catch(error => console.error("Error fetching products:", error));
+    </script>
+
+</body>
+</html>
